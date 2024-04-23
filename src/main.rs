@@ -20,6 +20,4 @@ fn main() -> Result<(), Box<dyn Error>> {
         pin.set_low();
         thread::sleep(Duration::from_millis(1000));
     }
-
-    Ok(())
 }
