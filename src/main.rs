@@ -53,22 +53,27 @@ fn main() {
 
         lowest_row -= 1;
 
-        let winner = check_win(&board);
-
-        if winner == 'R' {
-            println!("Player 1 won");
-            break;
-        } else if winner == 'Y' {
-            println!("Player 2 won");
-            break;
-        }
-
         if player_turn == 1 {
             board[lowest_row][col] = 82;
             player_turn = 2;
         } else if player_turn == 2 {
             board[lowest_row][col] = 89;
             player_turn = 1;
+        }
+
+
+        let winner = check_win(&board);
+
+        if winner == 'R' {
+            display_board(&board);
+            println!("Player 1 won");
+            break;
+        } else if winner == 'Y' {
+            display_board(&board);
+            println!("Player 2 won");
+            break;
+        } else {
+            println!("Space won");
         }
     }
 }
@@ -96,7 +101,7 @@ fn display_board(board: &[[u8; 7]; 6]) {
             print!("| {} ", *spot as char);
         }
         println!("|");
-        for i in 0..row.len() {
+        for _i in 0..row.len() {
             print!("|___");
         }
         println!("|");
@@ -105,33 +110,70 @@ fn display_board(board: &[[u8; 7]; 6]) {
 
 // checks the board for any four in a row and return the color (R, Y) that won
 fn check_win(board: &[[u8; 7]; 6]) -> char {
+    // vertical four in a row check
     for row in 0..(board.len()-3) {
-        for col in 0..(board[row].len()-3) {
-            // vertical four in a row
+        for col in 0..(board[row].len()) {
             if
                 board[row][col] == board[row+1][col] &&
                 board[row+1][col] == board[row+2][col] &&
                 board[row+2][col] == board[row+3][col]
             {
-                return board[row][col] as char;
+                if board[row][col] == b'R' {
+                    return 'R';
+                } else if board[row][col] == b'Y' {
+                    return 'Y';
+                }
             }
+        }
+    }
 
-            // horizontal four in a row
+    // horizontal four in a row check
+    for row in 0..(board.len()) {
+        for col in 0..(board[row].len()-3) {
             if
                 board[row][col] == board[row][col+1] &&
                 board[row][col+1] == board[row][col+2] &&
                 board[row][col+2] == board[row][col+3]
             {
-                return board[row][col] as char;
+                if board[row][col] == b'R' {
+                    return 'R';
+                } else if board[row][col] == b'Y' {
+                    return 'Y';
+                }
             }
+        }
+    }
 
-            // diagonal four in a row
+    // diagonal left to right four in a row check
+    for row in 0..(board.len()-3) {
+        for col in 0..(board[row].len()-3) {
             if
                 board[row][col] == board[row+1][col+1] &&
                 board[row+1][col+1] == board[row+2][col+2] &&
                 board[row+2][col+2] == board[row+3][col+3]
             {
-                return board[row][col] as char;
+                if board[row][col] == b'R' {
+                    return 'R';
+                } else if board[row][col] == b'Y' {
+                    return 'Y';
+                }
+            }
+        }
+    }
+
+    // diagonal right to left four in a row check
+    for row in 0..(board.len()-3) {
+        for col in 3..(board[row].len()) {
+            if
+                board[row][col] == board[row+1][col-1] &&
+                board[row+1][col-1] == board[row+2][col-2] &&
+                board[row+2][col-2] == board[row+3][col-3]
+            {
+                if board[row][col] == b'R' {
+                    return 'R';
+                } else if board[row][col] == b'Y' {
+                    return 'Y';
+                }
             }
         }
     }
