@@ -50,13 +50,11 @@ fn main() {
             player = 'R'
         }
 
-        let winner = check_win(&board);
-
-        if winner == 'R' {
+        if check_four_in_a_row(&board, 'R') {
             display_board(&board);
             println!("Player 1 won");
             break;
-        } else if winner == 'Y' {
+        } else if check_four_in_a_row(&board, 'Y') {
             display_board(&board);
             println!("Player 2 won");
             break;
@@ -119,7 +117,7 @@ fn play_move(board: &mut [[u8; 7]; 6], col: usize, player: char) -> bool {
 }
 
 // checks the board for any four in a row and return the color (R, Y) that won
-fn check_win(board: &[[u8; 7]; 6]) -> char {
+fn check_four_in_a_row(board: &[[u8; 7]; 6], player: char) -> bool {
     // vertical four in a row check
     for row in 0..(board.len()-3) {
         for col in 0..(board[row].len()) {
@@ -128,10 +126,8 @@ fn check_win(board: &[[u8; 7]; 6]) -> char {
                 board[row+1][col] == board[row+2][col] &&
                 board[row+2][col] == board[row+3][col]
             {
-                if board[row][col] == b'R' {
-                    return 'R';
-                } else if board[row][col] == b'Y' {
-                    return 'Y';
+                if board[row][col] == player as u8 {
+                    return true;
                 }
             }
         }
@@ -145,10 +141,8 @@ fn check_win(board: &[[u8; 7]; 6]) -> char {
                 board[row][col+1] == board[row][col+2] &&
                 board[row][col+2] == board[row][col+3]
             {
-                if board[row][col] == b'R' {
-                    return 'R';
-                } else if board[row][col] == b'Y' {
-                    return 'Y';
+                if board[row][col] == player as u8 {
+                    return true;
                 }
             }
         }
@@ -162,10 +156,8 @@ fn check_win(board: &[[u8; 7]; 6]) -> char {
                 board[row+1][col+1] == board[row+2][col+2] &&
                 board[row+2][col+2] == board[row+3][col+3]
             {
-                if board[row][col] == b'R' {
-                    return 'R';
-                } else if board[row][col] == b'Y' {
-                    return 'Y';
+                if board[row][col] == player as u8 {
+                    return true;
                 }
             }
         }
@@ -179,20 +171,48 @@ fn check_win(board: &[[u8; 7]; 6]) -> char {
                 board[row+1][col-1] == board[row+2][col-2] &&
                 board[row+2][col-2] == board[row+3][col-3]
             {
-                if board[row][col] == b'R' {
-                    return 'R';
-                } else if board[row][col] == b'Y' {
-                    return 'Y';
+                if board[row][col] == player as u8 {
+                    return true;
                 }
             }
         }
     }
-    return ' ';
+    return false;
 }
 
 fn ai_move(board: &mut [[u8; 7]; 6], player: char) {
+    let mut tmp_board = board.clone();
+    let other_player: char;
+
+    if player == 'R' {
+        other_player = 'Y';
+    } else {
+        other_player = 'R';
+    }
+
+    // checks if the ai can win
+    for col in 0..7 {
+        tmp_board = board.clone();
+        play_move(&mut tmp_board, col, player);
+
+        if check_four_in_a_row(&tmp_board, player) {
+            play_move(board, col, player);
+            return;
+        }
+    }
+
+    // checks if the other player could win and block it
+    for col in 0..7 {
+        tmp_board = board.clone();
+        play_move(&mut tmp_board, col, other_player);
+
+        if check_four_in_a_row(&tmp_board, other_player) {
+            play_move(board, col, player);
+            return;
+        }
+    }
+
     let mut rng = rand::thread_rng();
     let num = rng.gen_range(0..7);
-
     play_move(board, num, player);
 }
