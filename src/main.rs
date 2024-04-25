@@ -1,4 +1,5 @@
-use std::io::{stdin,stdout,Write};
+use std::{fmt::LowerExp, io::{stdin,stdout,Write}};
+use rand::Rng;
 
 fn main() {
     let mut board = [[32u8; 7]; 6];
@@ -6,7 +7,7 @@ fn main() {
     // 82 is red spot (R)
     // 89 is yellow spot (Y)
 
-    let mut player_turn: u8 = 1;
+    let mut player: char = 'R';
     // 1 is player 1
     // 2 is player 2
     // etc
@@ -15,52 +16,39 @@ fn main() {
         display_board(&board);
 
         let mut col: usize = 0;
-        let mut lowest_row: usize = 0;
 
-        loop {
+        if (player == 'Y') {
+            ai_move(&mut board, player);
+        } else {
             loop {
-                println!("Player {}: Choose a collumn from 1 to 7", player_turn);
+                loop {
+                    println!("Player {}: Choose a collumn from 1 to 7", player);
+    
+                    col = match get_input().parse::<usize>() {
+                        Ok(col) => col,
+                        Err(_e) => 255,
+                    };
+    
+                    col -= 1;
+    
+                    if col >= 7 {
+                        println!("Not a valid number");
+                    } else {
+                        break;
+                    }
+                }
 
-                col = match get_input().parse::<usize>() {
-                    Ok(col) => col,
-                    Err(_e) => 255,
-                };
-
-                col -= 1;
-
-                if col >= 7 {
-                    println!("Not a valid number");
-                } else {
+                if play_move(&mut board, col, player) {
                     break;
                 }
             }
-            
-            // lowest_row = 0;
-            for row in board {
-                if row[col] == 32 {
-                    lowest_row += 1;
-                } else {
-                    break;
-                }
-            }
-
-            if lowest_row == 0 {
-                println!("Collumn full!");
-            } else {
-                break;
-            }
         }
 
-        lowest_row -= 1;
-
-        if player_turn == 1 {
-            board[lowest_row][col] = 82;
-            player_turn = 2;
-        } else if player_turn == 2 {
-            board[lowest_row][col] = 89;
-            player_turn = 1;
+        if player == 'R' {
+            player = 'Y';
+        } else {
+            player = 'R'
         }
-
 
         let winner = check_win(&board);
 
@@ -106,6 +94,28 @@ fn display_board(board: &[[u8; 7]; 6]) {
         }
         println!("|");
     }
+}
+
+fn play_move(board: &mut [[u8; 7]; 6], col: usize, player: char) -> bool {
+    let mut lowest_row: i8 = -1;
+    for i in 0..6 {
+        if board[i][col] == b' ' {
+            lowest_row += 1;
+        } else {
+            break;
+        }
+    }
+
+    if lowest_row == -1 {
+        return false;
+    }
+
+    if board[lowest_row as usize][col] != b' ' {
+        return false;
+    }
+
+    board[lowest_row as usize][col] = player as u8;
+    return true;
 }
 
 // checks the board for any four in a row and return the color (R, Y) that won
@@ -178,4 +188,11 @@ fn check_win(board: &[[u8; 7]; 6]) -> char {
         }
     }
     return ' ';
+}
+
+fn ai_move(board: &mut [[u8; 7]; 6], player: char) {
+    let mut rng = rand::thread_rng();
+    let num = rng.gen_range(0..7);
+
+    play_move(board, num, player);
 }
