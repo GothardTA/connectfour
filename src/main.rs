@@ -84,7 +84,13 @@ fn display_board(board: &[[u8; 7]; 6]) {
     print!("{}[2J", 27 as char);
     for row in board {
         for spot in row {
-            print!("| {} ", *spot as char);
+            if *spot == b'R' {
+                print!("|\x1b[41m {} \x1b[0m", *spot as char);
+            } else if *spot == b'Y' {
+                print!("|\x1b[43m {} \x1b[0m", *spot as char);
+            } else {
+                print!("| {} ", *spot as char);
+            }
         }
         println!("|");
         for _i in 0..row.len() {
