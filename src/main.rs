@@ -1,4 +1,4 @@
-use std::{fmt::LowerExp, io::{stdin,stdout,Write}};
+use std::io::{stdin,stdout,Write};
 use rand::Rng;
 
 fn main() {
@@ -15,9 +15,9 @@ fn main() {
     loop {
         display_board(&board);
 
-        let mut col: usize = 0;
+        let mut col: usize;
 
-        if (player == 'Y') {
+        if player == 'Y' {
             ai_move(&mut board, player);
         } else {
             loop {
